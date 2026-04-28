@@ -1,0 +1,72 @@
+/* Pixel Art Pet Sprites */
+
+.pet-sprite {
+  width: 120px;
+  height: 120px;
+  image-rendering: pixelated;
+  image-rendering: -moz-crisp-edges;
+  image-rendering: crisp-edges;
+  transition: all 0.3s ease;
+}
+
+/* Stage 1: Egg */
+.pet-egg {
+  background: url('egg.png') no-repeat center;
+  background-size: contain;
+  animation: bounce 2s infinite;
+}
+
+/* Stage 2: Baby Bot */
+.pet-baby {
+  background: url('baby-bot.png') no-repeat center;
+  background-size: contain;
+  animation: bounce 1.5s infinite;
+}
+
+/* Stage 3: Teen Coder */
+.pet-teen {
+  background: url('teen-coder.png') no-repeat center;
+  background-size: contain;
+  animation: typing 1s infinite;
+}
+
+/* Stage 4: Senior Dev */
+.pet-adult {
+  background: url('senior-dev.png') no-repeat center;
+  background-size: contain;
+  animation: confident 2s infinite;
+}
+
+/* Stage 5: 10x Legend */
+.pet-legend {
+  background: url('10x-legend.png') no-repeat center;
+  background-size: contain;
+  animation: glow 2s infinite;
+}
+
+@keyframes bounce {
+  0%, 100% { transform: translateY(0) scale(1); }
+  50% { transform: translateY(-10px) scale(1.05); }
+}
+
+@keyframes typing {
+  0%, 100% { transform: translateY(0); }
+  25% { transform: translateY(-2px); }
+  75% { transform: translateY(2px); }
+}
+
+@keyframes confident {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.02); }
+}
+
+@keyframes glow {
+  0%, 100% { 
+    transform: scale(1);
+    filter: drop-shadow(0 0 10px gold);
+  }
+  50% { 
+    transform: scale(1.1);
+    filter: drop-shadow(0 0 20px gold);
+  }
+}
