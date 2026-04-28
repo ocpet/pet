@@ -1,49 +1,64 @@
 ---
 name: pet
-description: 🐣 Your personal coding companion - Tamagotchi style pet
+description: 🐣 Your personal coding companion - Tamagotchi style pet in terminal
 version: 0.1.0
 author: TURAC
 ---
 
-# Pet Skill
+# Pet Skill for OpenClaw
 
-A Tamagotchi-style coding companion that lives in your Telegram.
+A Tamagotchi-style coding companion that lives in your terminal.
 
 ## Usage
 
-In Telegram with OpenClaw:
-```
-/pet
-```
-
-Or command:
 ```bash
 openclaw pet
+# or
+openclaw run pet
 ```
-
-This will open a Telegram Mini App where you can:
-- 🍕 Feed your pet
-- 🎮 Play with your pet  
-- 💻 Code to earn XP
-- ⭐ Watch it evolve through 5 stages
-
-## Stages
-
-1. 🥚 Egg
-2. 🤖 Baby Bot
-3. 💻 Teen Coder
-4. 🦖 Senior Dev
-5. 👑 10x Legend
 
 ## Features
 
-- Real-time stats (Hunger, Happiness, Energy)
-- Pixel art design
-- Evolution system
-- Persistent state
+- 🥚 5 Evolution Stages (Egg → Baby → Teen → Adult → Legend)
+- 🍕 Feed, 🎮 Play, 💻 Code mechanics
+- 📊 Real-time stats with ASCII bars
+- 🎨 Terminal pixel art
+- 💾 Persistent state (saves to ~/.openclaw-pet.json)
 
-## Integration
+## Commands (in-game)
 
-This skill uses Telegram Mini Apps for the best mobile experience.
+- `f` or `feed` - Feed your pet
+- `p` or `play` - Play with your pet
+- `c` or `code` - Code to earn XP
+- `s` or `status` - Check status
+- `q` or `quit` - Exit
+
+## Stages
+
+1. 🥚 **Egg** - Level 1-4
+2. 🤖 **Baby Bot** - Level 5-9
+3. 💻 **Teen Coder** - Level 10-14
+4. 🦖 **Senior Dev** - Level 15-19
+5. 👑 **10x Legend** - Level 20+
+
+## Installation
+
+```bash
+# Link to OpenClaw
+openclaw skills link ~/.openclaw/workspace/skills/pet
+
+# Or copy to skills directory
+cp -r ~/.openclaw/workspace/skills/pet ~/.openclaw/skills/
+```
+
+## No Domain Required!
+
+This is a pure CLI skill. Works entirely in terminal with:
+- ASCII pixel art
+- Local file storage
+- No external dependencies
+- No web server needed
+
+---
 
 Built with 💜 by TURAC
