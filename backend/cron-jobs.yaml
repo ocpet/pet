@@ -1,0 +1,31 @@
+# 🔔 OpenClaw Pet - Cron Job Schedule
+
+jobs:
+  # Sabah selamlaşma (08:00)
+  - name: pet-morning
+    schedule: "0 8 * * *"
+    timezone: "Europe/Istanbul"
+    action: "send_morning_greeting"
+    
+  # Açlık kontrolü (12:00 - öğlen)
+  - name: pet-hunger-check
+    schedule: "0 12 * * *"
+    action: "check_hunger_and_notify"
+    condition: "hunger < 40"
+    
+  # Özledim mesajı (20:00 - 24h giriş yoksa)
+  - name: pet-missed-you
+    schedule: "0 20 * * *"
+    action: "send_miss_you"
+    condition: "last_login > 24h"
+    
+  # Streak uyarısı (21:30)
+  - name: pet-streak-warning
+    schedule: "30 21 * * *"
+    action: "send_streak_warning"
+    condition: "streak_active AND not_logged_today"
+    
+  # Rastgele event (Pzt, Çar, Cum 14:00)
+  - name: pet-random-event
+    schedule: "0 14 * * 1,3,5"
+    action: "send_random_event"

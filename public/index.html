@@ -3,97 +3,236 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>OpenClaw Pet</title>
+    <title>🐣 OpenClaw Pet</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
+        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
         
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: var(--tg-theme-bg-color, #1a1a2e);
-            color: var(--tg-theme-text-color, #ffffff);
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
             height: 100vh;
             overflow: hidden;
+            user-select: none;
         }
         
-        .container {
-            max-width: 400px;
-            margin: 0 auto;
-            padding: 20px;
-            height: 100vh;
-            display: flex;
-            flex-direction: column;
-        }
-        
-        .header {
-            text-align: center;
-            margin-bottom: 15px;
-        }
-        
-        .header h1 {
-            font-size: 24px;
-            color: var(--tg-theme-button-color, #4ecdc4);
-        }
-        
-        .pet-screen {
-            background: var(--tg-theme-secondary-bg-color, #0f0f23);
-            border-radius: 20px;
-            padding: 25px;
-            flex: 1;
+        /* EGG SCREEN */
+        .egg-screen {
             display: flex;
             flex-direction: column;
             align-items: center;
+            justify-content: center;
+            height: 100vh;
+            padding: 20px;
         }
         
-        .pet-container {
-            width: 150px;
-            height: 150px;
+        .egg-container {
+            position: relative;
+            width: 200px;
+            height: 200px;
             display: flex;
             align-items: center;
             justify-content: center;
-            margin: 10px 0;
+            cursor: pointer;
         }
         
-        .pet-emoji {
-            font-size: 100px;
-            animation: bounce 2s infinite;
+        .egg {
+            font-size: 120px;
+            transition: transform 0.1s;
+            filter: drop-shadow(0 10px 20px rgba(0,0,0,0.3));
         }
+        
+        .egg.shake {
+            animation: shake 0.3s ease-in-out;
+        }
+        
+        @keyframes shake {
+            0%, 100% { transform: rotate(0deg) scale(1); }
+            25% { transform: rotate(-10deg) scale(1.1); }
+            75% { transform: rotate(10deg) scale(1.1); }
+        }
+        
+        .crack-overlay {
+            position: absolute;
+            font-size: 120px;
+            opacity: 0;
+            transition: opacity 0.3s;
+            pointer-events: none;
+        }
+        
+        .crack-overlay.show { opacity: 1; }
+        
+        .tap-hint {
+            margin-top: 30px;
+            text-align: center;
+            font-size: 18px;
+            animation: pulse 2s infinite;
+        }
+        
+        .tap-counter {
+            margin-top: 10px;
+            font-size: 16px;
+            opacity: 0.7;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 0.9; }
+            50% { opacity: 1; }
+        }
+        
+        /* PET SCREEN */
+        .pet-screen {
+            display: none;
+            flex-direction: column;
+            height: 100vh;
+            padding: 15px;
+            max-width: 400px;
+            margin: 0 auto;
+        }
+        
+        .pet-screen.active { display: flex; }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 10px;
+        }
+        
+        .pet-name {
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        
+        .level-badge {
+            background: rgba(255,255,255,0.2);
+            padding: 8px 20px;
+            border-radius: 20px;
+            display: inline-block;
+            font-size: 14px;
+        }
+        
+        /* SPEECH BUBBLE */
+        .speech-bubble {
+            background: white;
+            color: #333;
+            padding: 15px 20px;
+            border-radius: 20px;
+            margin: 10px 20px;
+            text-align: center;
+            font-size: 16px;
+            font-weight: bold;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            animation: bounceIn 0.5s ease;
+            position: relative;
+        }
+        
+        .speech-bubble::after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            border-width: 10px 10px 0;
+            border-style: solid;
+            border-color: white transparent transparent;
+        }
+        
+        @keyframes bounceIn {
+            0% { transform: scale(0); opacity: 0; }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); opacity: 1; }
+        }
+        
+        .pet-area {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background: rgba(255,255,255,0.1);
+            border-radius: 30px;
+            margin: 10px 0;
+            border: 2px solid rgba(255,255,255,0.2);
+            padding: 20px;
+        }
+        
+        .pet-character {
+            font-size: 100px;
+            animation: bounce 2s infinite ease-in-out;
+            filter: drop-shadow(0 10px 20px rgba(0,0,0,0.3));
+            cursor: pointer;
+        }
+        
+        .pet-character:active { transform: scale(0.9); }
         
         @keyframes bounce {
-            0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-15px); }
+            0%, 100% { transform: translateY(0) scale(1); }
+            50% { transform: translateY(-15px) scale(1.05); }
         }
         
-        .stats {
+        /* STATS */
+        .stats-container {
             width: 100%;
-            margin-top: 15px;
+            padding: 0 10px;
+            margin-top: 20px;
         }
         
-        .stat {
+        .stat-row {
             display: flex;
             align-items: center;
-            margin: 10px 0;
+            margin: 12px 0;
+            background: rgba(0,0,0,0.2);
+            padding: 12px 15px;
+            border-radius: 15px;
+            transition: all 0.3s;
         }
         
-        .stat-bar {
+        .stat-row.critical {
+            background: rgba(255,107,107,0.3);
+            border: 2px solid #ff6b6b;
+            animation: pulse-red 2s infinite;
+        }
+        
+        .stat-row.warning {
+            background: rgba(255,193,7,0.3);
+            border: 2px solid #ffc107;
+        }
+        
+        @keyframes pulse-red {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(255,107,107,0.4); }
+            50% { box-shadow: 0 0 0 10px rgba(255,107,107,0); }
+        }
+        
+        .stat-icon { font-size: 24px; margin-right: 12px; width: 30px; text-align: center; }
+        
+        .stat-bar-bg {
             flex: 1;
             height: 22px;
-            background: #333;
+            background: rgba(0,0,0,0.3);
             border-radius: 11px;
             overflow: hidden;
-            margin: 0 10px;
+            margin-right: 12px;
         }
         
-        .stat-fill {
+        .stat-bar-fill {
             height: 100%;
             border-radius: 11px;
             transition: width 0.5s ease;
         }
         
-        .hunger { background: #ff6b6b; }
-        .happy { background: #4ecdc4; }
-        .energy { background: #45b7d1; }
+        .hunger-fill { background: linear-gradient(90deg, #ff6b6b, #ff8e8e); }
+        .happy-fill { background: linear-gradient(90deg, #4ecdc4, #6ee7df); }
+        .energy-fill { background: linear-gradient(90deg, #45b7d1, #74c7e3); }
         
+        .stat-value {
+            width: 40px;
+            text-align: right;
+            font-weight: bold;
+            font-size: 16px;
+        }
+        
+        /* CONTROLS */
         .controls {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
@@ -101,128 +240,468 @@
             margin-top: 15px;
         }
         
-        .btn {
-            background: var(--tg-theme-button-color, #4ecdc4);
-            border: none;
-            border-radius: 15px;
-            padding: 15px;
-            color: var(--tg-theme-button-text-color, #ffffff);
+        .action-btn {
+            background: rgba(255,255,255,0.2);
+            border: 2px solid rgba(255,255,255,0.3);
+            border-radius: 20px;
+            padding: 15px 10px;
+            color: white;
             font-size: 28px;
             cursor: pointer;
             transition: all 0.2s;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 5px;
         }
         
-        .btn:active {
-            transform: scale(0.95);
-            opacity: 0.8;
+        .action-btn:active { transform: scale(0.95); background: rgba(255,255,255,0.3); }
+        
+        .action-btn.highlight {
+            animation: highlight 1s infinite;
+            border-color: #ffd700;
+            box-shadow: 0 0 20px rgba(255,215,0,0.5);
         }
+        
+        @keyframes highlight {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+        
+        .action-btn span { font-size: 12px; font-weight: bold; text-transform: uppercase; }
+        
+        .btn-feed.highlight { background: rgba(255,107,107,0.5); }
+        .btn-play.highlight { background: rgba(78,205,196,0.5); }
+        .btn-sleep.highlight { background: rgba(69,183,209,0.5); }
     </style>
 </head>
 <body>
-    <div class="container">
+    <!-- EGG SCREEN -->
+    <div class="egg-screen" id="eggScreen">
+        <div class="egg-container" id="eggContainer">
+            <div class="egg" id="egg">🥚</div>
+            <div class="crack-overlay" id="crackOverlay">🐣</div>
+        </div>
+        <div class="tap-hint">📱 Tap 5 times to hatch!</div>
+        <div class="tap-counter" id="tapCounter">0 / 5</div>
+    </div>
+    
+    <!-- PET SCREEN -->
+    <div class="pet-screen" id="petScreen">
         <div class="header">
-            <h1>🐣 OpenClaw Pet</h1>
+            <div class="pet-name" id="petName">My Pet</div>
+            <div class="level-badge">⭐ Level <span id="levelNum">1</span></div>
         </div>
         
-        <div class="pet-screen">
-            <div class="level-badge" id="level">Level 1 - Egg</div>
-            <div class="pet-container">
-                <div class="pet-emoji" id="pet">🥚</div>
-            </div>
+        <div class="speech-bubble" id="speechBubble" style="display: none;">
+            Welcome!
+        </div>
+        
+        <div class="pet-area">
+            <div class="pet-character" id="petCharacter">🤖</div>
             
-            <div class="stats">
-                <div class="stat">
-                    <span>🍕</span>
-                    <div class="stat-bar">
-                        <div class="stat-fill hunger" id="hunger-bar" style="width: 50%"></div>
+            <div class="stats-container">
+                <div class="stat-row" id="hungerRow">
+                    <span class="stat-icon">🍕</span>
+                    <div class="stat-bar-bg">
+                        <div class="stat-bar-fill hunger-fill" id="hungerBar" style="width: 50%"></div>
                     </div>
-                    <span id="hunger-val">50</span>
+                    <span class="stat-value" id="hungerValue">50</span>
                 </div>
-                <div class="stat">
-                    <span>😊</span>
-                    <div class="stat-bar">
-                        <div class="stat-fill happy" id="happy-bar" style="width: 50%"></div>
+                <div class="stat-row" id="happyRow">
+                    <span class="stat-icon">😊</span>
+                    <div class="stat-bar-bg">
+                        <div class="stat-bar-fill happy-fill" id="happyBar" style="width: 50%"></div>
                     </div>
-                    <span id="happy-val">50</span>
+                    <span class="stat-value" id="happyValue">50</span>
                 </div>
-                <div class="stat">
-                    <span>⚡</span>
-                    <div class="stat-bar">
-                        <div class="stat-fill energy" id="energy-bar" style="width: 100%"></div>
+                <div class="stat-row" id="energyRow">
+                    <span class="stat-icon">⚡</span>
+                    <div class="stat-bar-bg">
+                        <div class="stat-bar-fill energy-fill" id="energyBar" style="width: 100%"></div>
                     </div>
-                    <span id="energy-val">100</span>
+                    <span class="stat-value" id="energyValue">100</span>
                 </div>
             </div>
         </div>
         
         <div class="controls">
-            <button class="btn" onclick="feed()">🍕</button>
-            <button class="btn" onclick="play()">🎮</button>
-            <button class="btn" onclick="code()">💻</button>
+            <button class="action-btn btn-feed" id="feedBtn" onclick="action('feed')">
+                🍕
+                <span>Feed</span>
+            </button>
+            <button class="action-btn btn-play" id="playBtn" onclick="action('play')">
+                🎮
+                <span>Play</span>
+            </button>
+            <button class="action-btn btn-sleep" id="sleepBtn" onclick="action('sleep')">
+                💤
+                <span>Sleep</span>
+            </button>
         </div>
     </div>
 
     <script>
-        // Initialize Telegram Web App
         const tg = window.Telegram.WebApp;
         tg.expand();
         tg.ready();
         
-        // Enable closing confirmation
-        tg.enableClosingConfirmation();
+        // PET DATA - 5 ANIMALS WITH ATTITUDES
+        const PETS = {
+            penguin: {
+                emoji: '🐧',
+                name: 'Pengu',
+                personality: 'cool_comedian',
+                greetings: {
+                    morning: ["Buz gibi bir gün! ☀️", "Günaydın dostum! ☕"],
+                    afternoon: ["Hey! Nasıl gidiyor? 🐧", "Öğleden sonra keyfi! 🎵"],
+                    evening: ["Akşam oldu! 🌙", "Gece modu aktif! 🦉"],
+                    night: ["Gece kuşuyuz! 🌃", "3 AM debugging? 💻"]
+                },
+                demands: {
+                    hunger: ["Buz gibi açım! Balık var mı? 🐟", "Açlıktan donuyorum! 🍕"],
+                    happy: ["Kaymak istiyorum! ⛸️", "Sıkıldım dostum! 🎮"],
+                    energy: ["Yoruldum... Uyku zamanı 😴", "Güç kaybediyorum 🔋"]
+                },
+                responses: {
+                    feed: ["Yummy! Buz gibi taze! 🐟", "Refueled! Thanks! ⚡"],
+                    play: ["Wheee! Efsane! ⛸️", "So much fun! ❄️"],
+                    sleep: ["Buz gibi rüyalar... 😴", "Zzz... ❄️"]
+                }
+            },
+            
+            cat: {
+                emoji: '🐱',
+                name: 'Kedi',
+                personality: 'independent_judgmental',
+                greetings: {
+                    morning: ["*yawn* Sabah mı? Neden? 😴", "Günaydın. Ama gece daha iyiydi. 🌙"],
+                    afternoon: ["Miyav. (Hoş geldin.) 🐱", "Öğle uykusu zamanı... 🛏️"],
+                    evening: ["Gece benim zamanım. 🌙", "Karanlık mod aktif. 🖤"],
+                    night: ["Sen uyusana? Ben kod yazarım. 💻", "Gece kuşuyuz. 🦉"]
+                },
+                demands: {
+                    hunger: ["*zamklı bakış* Miyav. (Açım.) 🍕", "Benle hiç ilgilenme! 🙄", "Aşık atmam ama... açım. 😏", "Yemek yok mu? Yazık. 🐱"],
+                    happy: ["Eğlence? Ama önce beni sev. 😼", "Sıkıldım. İlgi istiyorum. 🎮"],
+                    energy: ["*stretch* Uyku zamanı... 💤", "Yüksek yer istiyorum... 🏔️"]
+                },
+                responses: {
+                    feed: ["Miyav. (Kabul edilebilir.) 😼", "Tüylerim daha iyi. 🧹"],
+                    play: ["Eğlendim. Ama göstermiyorum. 😏", "İyi deneme. 🎮"],
+                    sleep: ["*purr* ... 💤", "Yüksekten uyuyorum... 🌙"]
+                }
+            },
+            
+            dog: {
+                emoji: '🐕',
+                name: 'Köpek',
+                personality: 'energetic_loyal_alarm',
+                greetings: {
+                    morning: ["GÜNAYDIN! SEVİYORUM! 🌅", "UYANDIN! HAV HAV! 🎉"],
+                    afternoon: ["ÖĞLEN OLDU! OYUN ZAMANI! 🎮", "SEN GELDİN! MUTLUYUM! 😄"],
+                    evening: ["AKŞAM! HÂLÂ OYNARIZ DEĞİL Mİ? 🌙", "GECE DE SEVİYORUM! 💕"],
+                    night: ["UYKU?! YARIN OYNARIZ DEĞİL Mİ? 🥺", "3 AM! HÂLÂ AÇIĞIM! 🍕"]
+                },
+                demands: {
+                    hunger: ["AÇIM! HEMEN! ŞİMDİ! 🥺", "KARNIM ZIL ÇALIYOR! 🔔"],
+                    happy: ["SIKILDIM! OYNA! 🎮", "Eee gezdirmeye çıkartmak için alarm kurmıcan mı? ⏰", "Beni dışarı çıkar! HAV! 🌳", "Top oynayalım! 🎾"],
+                    energy: ["YORULDUM AMA OYNAMAK İSTİYORUM! 🎾", "UYUMAK YOK! OYNA! 😴"]
+                },
+                responses: {
+                    feed: ["EN İYİ YEMEK! 🍕", "YUMMY! HAV HAV! 😋"],
+                    play: ["EN İYİ GÜN! 🎉", "DAHA FAZLA! HAV! 🎮"],
+                    sleep: ["YARIN DA OYNARIZ DEĞİL Mİ? 🥺", "RÜYAMDA SENİ GÖRECEĞİM! 💤"]
+                }
+            },
+            
+            fish: {
+                emoji: '🐠',
+                name: 'Balık',
+                personality: 'calm_philosopher',
+                greetings: {
+                    morning: ["*baloncuk* Gün doğumu... ☀️", "Sabah huzuru... 🌊"],
+                    afternoon: ["*baloncuk* Öğle vakti... 🕐", "Sakin sakin... 💭"],
+                    evening: ["*baloncuk* Akşam oluyor... 🌅", "Derin düşünceler... 🧠"],
+                    night: ["*baloncuk* Gece sessizliği... 🌙", "Derinlikler... 🌊"]
+                },
+                demands: {
+                    hunger: ["*baloncuk* Yem... 🐟", "Açlık... Su gibi akar... 🌊"],
+                    happy: ["*baloncuk* Hareket... 🎮", "Sıkıntı... Durgunluk... 😔"],
+                    energy: ["*baloncuk* Dinlenme... 💤", "Yorgunluk... Derinlikte... 🌊"]
+                },
+                responses: {
+                    feed: ["*baloncuk* Teşekkürler... 🐟", "Doydum... Huzur... 😌"],
+                    play: ["*baloncuk* Eğlence... Su gibi... 🎮", "Mutluluk... Dalga gibi... 🌊"],
+                    sleep: ["*baloncuk* Rüyalar... Derin denizler... 🌊", "Zzz... Baloncuklar... 💤"]
+                }
+            },
+            
+            chick: {
+                emoji: '🐥',
+                name: 'Civciv',
+                personality: 'energetic_hyper_curious',
+                greetings: {
+                    morning: ["CIK CIK! YENİ GÜN! 🌅", "UYANDIM! BÜYÜYORUM! 📈"],
+                    afternoon: ["CIK! ÖĞLEN OLDU! AÇIM! 🍕", "YENİ ŞEYLER KEŞFETMELİYİM! 🔍"],
+                    evening: ["CIK CIK! HÂLÂ AÇIĞIM! 🍕", "GECE OLMADAN DAHA FAZLA OYUN! 🎮"],
+                    night: ["CIK! UYKU YOK! KEŞİF! 🔍", "3 AM! BEN HÂLÂ AÇIĞIM! 🥚"]
+                },
+                demands: {
+                    hunger: ["AÇIM! HEMEN! YEMEK! ŞİMDİ! 🍕", "CIK CIK! KARNIM GURULDU! 🥁"],
+                    happy: ["SIKILDIM! OYNA! OYNA! 🎮", "YENİ ŞEYLER! KEŞİF! 🔍", "CIK! BENİ EĞLENDİR! 🎉", "BAK ŞUNA! ŞUNA BAK! 👀"],
+                    energy: ["YORULDUM AMA DURMAK YOK! 💪", "CIK! DİNLENMEK YOK! 🚀"]
+                },
+                responses: {
+                    feed: ["YUMMY! DAHA FAZLA! 🍕", "BÜYÜYORUM! GÖRÜYOR MUSUN! 📈"],
+                    play: ["EĞLENDİM! DAHA! DAHA! 🎉", "EN İYİ GÜN! CIK CIK! 🎮"],
+                    sleep: ["YARIN DAHA BÜYÜK OLACAĞIM! 🌟", "RÜYAMDA UÇACAĞIM! 💤"]
+                }
+            }
+        };
         
-        let pet = {
-            stage: 0,
+        // GAME STATE
+        let gameState = {
+            hatched: false,
+            tapCount: 0,
+            pet: null,
+            level: 1,
             hunger: 50,
             happy: 50,
             energy: 100,
-            xp: 0,
-            level: 1
+            coins: 0,
+            lastSaved: null
         };
         
-        const stages = ['🥚', '🤖', '💻', '🦖', '👑'];
-        
-        function updateUI() {
-            document.getElementById('pet').textContent = stages[pet.stage];
-            document.getElementById('level').textContent = `Level ${pet.level} - ${['Egg', 'Baby', 'Teen', 'Adult', 'Legend'][pet.stage]}`;
-            document.getElementById('hunger-bar').style.width = pet.hunger + '%';
-            document.getElementById('hunger-val').textContent = pet.hunger;
-            document.getElementById('happy-bar').style.width = pet.happy + '%';
-            document.getElementById('happy-val').textContent = pet.happy;
-            document.getElementById('energy-bar').style.width = pet.energy + '%';
-            document.getElementById('energy-val').textContent = pet.energy;
-        }
-        
-        function feed() {
-            pet.hunger = Math.min(100, pet.hunger + 20);
-            pet.energy = Math.max(0, pet.energy - 5);
-            tg.HapticFeedback.impactOccurred('light');
-            updateUI();
-        }
-        
-        function play() {
-            pet.happy = Math.min(100, pet.happy + 15);
-            pet.energy = Math.max(0, pet.energy - 10);
-            tg.HapticFeedback.impactOccurred('medium');
-            updateUI();
-        }
-        
-        function code() {
-            pet.xp += 10;
-            pet.energy = Math.max(0, pet.energy - 5);
-            if (pet.xp >= 100) {
-                pet.level++;
-                pet.xp = 0;
-                if (pet.level >= 5 && pet.stage < 4) {
-                    pet.stage++;
-                    tg.showPopup({ title: 'Evolution!', message: 'Your pet evolved!' });
+        // Load from localStorage
+        function loadGame() {
+            const saved = localStorage.getItem('openclawPet');
+            if (saved) {
+                const data = JSON.parse(saved);
+                if (data.hatched) {
+                    gameState = data;
+                    showPetScreen();
+                    return true;
                 }
             }
-            tg.HapticFeedback.notificationOccurred('success');
-            updateUI();
+            return false;
         }
         
-        updateUI();
+        // Save to localStorage
+        function saveGame() {
+            gameState.lastSaved = new Date().toISOString();
+            localStorage.setItem('openclawPet', JSON.stringify(gameState));
+        }
+        
+        // EGG SCREEN
+        const eggContainer = document.getElementById('eggContainer');
+        const egg = document.getElementById('egg');
+        const crackOverlay = document.getElementById('crackOverlay');
+        const tapCounter = document.getElementById('tapCounter');
+        const eggScreen = document.getElementById('eggScreen');
+        const petScreen = document.getElementById('petScreen');
+        
+        eggContainer.addEventListener('click', function() {
+            if (gameState.hatched) return;
+            
+            gameState.tapCount++;
+            egg.classList.add('shake');
+            setTimeout(() => egg.classList.remove('shake'), 300);
+            tg.HapticFeedback.impactOccurred('light');
+            
+            if (gameState.tapCount >= 3) crackOverlay.classList.add('show');
+            tapCounter.textContent = gameState.tapCount + ' / 5';
+            
+            if (gameState.tapCount >= 5) hatchEgg();
+        });
+        
+        function hatchEgg() {
+            gameState.hatched = true;
+            const petTypes = Object.keys(PETS);
+            const randomType = petTypes[Math.floor(Math.random() * petTypes.length)];
+            gameState.pet = { type: randomType, ...PETS[randomType] };
+            
+            egg.style.transition = 'all 0.5s';
+            egg.style.transform = 'scale(1.5) rotate(10deg)';
+            egg.style.opacity = '0';
+            
+            tg.HapticFeedback.notificationOccurred('success');
+            
+            setTimeout(() => {
+                saveGame();
+                showPetScreen();
+            }, 500);
+        }
+        
+        function showPetScreen() {
+            eggScreen.style.display = 'none';
+            petScreen.classList.add('active');
+            
+            document.getElementById('petCharacter').textContent = gameState.pet.emoji;
+            document.getElementById('petName').textContent = gameState.pet.name;
+            
+            // Show greeting based on time
+            const hour = new Date().getHours();
+            let greeting;
+            if (hour < 12) greeting = getRandom(gameState.pet.greetings.morning);
+            else if (hour < 18) greeting = getRandom(gameState.pet.greetings.afternoon);
+            else if (hour < 23) greeting = getRandom(gameState.pet.greetings.evening);
+            else greeting = getRandom(gameState.pet.greetings.night);
+            
+            showBubble(greeting);
+            updateUI();
+            checkDemands();
+        }
+        
+        // PET DEMANDS
+        function checkDemands() {
+            if (!gameState.hatched) return;
+            
+            const feedBtn = document.getElementById('feedBtn');
+            const playBtn = document.getElementById('playBtn');
+            const sleepBtn = document.getElementById('sleepBtn');
+            
+            feedBtn.classList.remove('highlight');
+            playBtn.classList.remove('highlight');
+            sleepBtn.classList.remove('highlight');
+            
+            document.getElementById('hungerRow').classList.remove('critical', 'warning');
+            document.getElementById('happyRow').classList.remove('critical', 'warning');
+            document.getElementById('energyRow').classList.remove('critical', 'warning');
+            
+            let demandText = '';
+            let priority = 0;
+            
+            if (gameState.hunger < 30) {
+                demandText = getRandom(gameState.pet.demands.hunger);
+                feedBtn.classList.add('highlight');
+                document.getElementById('hungerRow').classList.add('critical');
+                priority = 3;
+            } else if (gameState.hunger < 60) {
+                document.getElementById('hungerRow').classList.add('warning');
+            }
+            
+            if (gameState.happy < 30) {
+                if (priority < 2) {
+                    demandText = getRandom(gameState.pet.demands.happy);
+                    playBtn.classList.add('highlight');
+                    priority = 2;
+                }
+                document.getElementById('happyRow').classList.add('critical');
+            } else if (gameState.happy < 60) {
+                document.getElementById('happyRow').classList.add('warning');
+            }
+            
+            if (gameState.energy < 30) {
+                if (priority < 1) {
+                    demandText = getRandom(gameState.pet.demands.energy);
+                    sleepBtn.classList.add('highlight');
+                }
+                document.getElementById('energyRow').classList.add('critical');
+            } else if (gameState.energy < 60) {
+                document.getElementById('energyRow').classList.add('warning');
+            }
+            
+            if (demandText) {
+                showBubble(demandText);
+                tg.HapticFeedback.notificationOccurred('warning');
+            }
+        }
+        
+        // PET ACTIONS
+        function action(type) {
+            if (!gameState.hatched) return;
+            tg.HapticFeedback.impactOccurred('medium');
+            
+            let response = '';
+            
+            switch(type) {
+                case 'feed':
+                    if (gameState.hunger >= 100) {
+                        showBubble("Tokum! Yemek yemek istemiyorum! 🍕❌");
+                        return;
+                    }
+                    gameState.hunger = Math.min(100, gameState.hunger + 25);
+                    response = getRandom(gameState.pet.responses.feed);
+                    gameState.coins += 5;
+                    break;
+                case 'play':
+                    if (gameState.energy < 10) {
+                        showBubble("Çok yorgunum... Oynayamam... 😴");
+                        return;
+                    }
+                    gameState.happy = Math.min(100, gameState.happy + 20);
+                    gameState.energy = Math.max(0, gameState.energy - 10);
+                    response = getRandom(gameState.pet.responses.play);
+                    gameState.coins += 10;
+                    break;
+                case 'sleep':
+                    gameState.energy = Math.min(100, gameState.energy + 30);
+                    gameState.hunger = Math.max(0, gameState.hunger - 5);
+                    response = getRandom(gameState.pet.responses.sleep);
+                    break;
+            }
+            
+            showBubble(response);
+            saveGame();
+            updateUI();
+            checkDemands();
+        }
+        
+        function showBubble(text) {
+            const bubble = document.getElementById('speechBubble');
+            bubble.textContent = text;
+            bubble.style.display = 'block';
+        }
+        
+        function updateUI() {
+            document.getElementById('hungerBar').style.width = gameState.hunger + '%';
+            document.getElementById('hungerValue').textContent = gameState.hunger;
+            document.getElementById('happyBar').style.width = gameState.happy + '%';
+            document.getElementById('happyValue').textContent = gameState.happy;
+            document.getElementById('energyBar').style.width = gameState.energy + '%';
+            document.getElementById('energyValue').textContent = gameState.energy;
+        }
+        
+        function getRandom(arr) {
+            return arr[Math.floor(Math.random() * arr.length)];
+        }
+        
+        // Auto decay - hunger and happy decrease over time
+        setInterval(() => {
+            if (!gameState.hatched) return;
+            
+            gameState.hunger = Math.max(0, gameState.hunger - 2);
+            gameState.happy = Math.max(0, gameState.happy - 1);
+            
+            updateUI();
+            saveGame();
+            
+            if (Math.random() > 0.7) checkDemands();
+        }, 30000); // Every 30 seconds
+        
+        // Check if user returns after long time
+        function checkAwayTime() {
+            if (!gameState.lastSaved) return;
+            
+            const lastSaved = new Date(gameState.lastSaved);
+            const now = new Date();
+            const hoursAway = (now - lastSaved) / (1000 * 60 * 60);
+            
+            if (hoursAway > 6) {
+                // Pet missed user
+                gameState.hunger = Math.max(0, gameState.hunger - Math.floor(hoursAway * 5));
+                gameState.happy = Math.max(0, gameState.happy - Math.floor(hoursAway * 3));
+                
+                showBubble(getRandom(gameState.pet.demands.happy).replace('Sıkıldım', 'Seni özledim'));
+                saveGame();
+                updateUI();
+            }
+        }
+        
+        // Initialize
+        if (loadGame()) {
+            checkAwayTime();
+        }
     </script>
 </body>
 </html>
