@@ -125,6 +125,13 @@ The dialogue engine ships ~120 hand-written lines across 5 species × 4 language
 - **Fish (DE):** *"blubb blubb"*, *"Ozeanträume"*
 - **Chick (EN):** *"CHEEP CHEEP"*, *"NEW THING NEW THING"*
 
+## Read more
+
+- [**Site / landing page**](https://ocpet.github.io/pet/)
+- [**Clawpet vs. Tamagotchi On / Pou / Habitica / Aavegotchi**](https://ocpet.github.io/pet/alternatives/tamagotchi.html) — honest comparison
+- [**Best group chat mascot for Telegram**](https://ocpet.github.io/pet/use-cases/group-chat.html) — how to use Clawpet as a group activity
+- [**Best Telegram Mini Apps in 2026 — Wholesome Edition**](https://ocpet.github.io/pet/blog/best-telegram-mini-apps-2026.html) — our take on the non-crypto side of the ecosystem
+
 ## Credits
 
 Built on [OpenClaw](https://openclaw.ai), [Hermes Agent](https://hermes-agent.nousresearch.com), the [agentskills.io](https://agentskills.io) standard, and the muscle memory of Tamagotchis from 2003.
