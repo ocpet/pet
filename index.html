@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Clawpet — Tamagotchi reborn inside Telegram</title>
+<meta name="description" content="Tap a link, hatch a virtual pet, watch your friends raise theirs. Tamagotchi-style pet game inside Telegram. 0 install, 4 languages, pets visit each other.">
+<link rel="canonical" href="https://ocpet.github.io/">
+<link rel="stylesheet" href="/assets/style.css">
+
+<meta property="og:type" content="website">
+<meta property="og:title" content="Clawpet — Tamagotchi reborn inside Telegram">
+<meta property="og:description" content="Tap a link, hatch a virtual pet, watch your friends raise theirs. 0 install, 4 languages, pets visit each other.">
+<meta property="og:image" content="https://ocpet.github.io/assets/banner.jpg">
+<meta property="og:url" content="https://ocpet.github.io/">
+<meta name="twitter:card" content="summary_large_image">
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "SoftwareApplication",
+  "name": "Clawpet",
+  "operatingSystem": "Telegram",
+  "applicationCategory": "GameApplication",
+  "url": "https://t.me/OpenClawTamagotchi_bot/pet",
+  "image": "https://ocpet.github.io/assets/banner.jpg",
+  "description": "Tamagotchi-style virtual pet that lives inside Telegram. No install, 4 languages, social visits between users.",
+  "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"},
+  "aggregateRating": {"@type": "AggregateRating", "ratingValue": "5", "ratingCount": "1"}
+}
+</script>
+</head>
+<body>
+
+<header>
+  <img class="banner" src="/assets/banner.jpg" alt="Clawpet — virtual pets inside Telegram">
+  <nav>
+    <a href="/">Home</a>
+    <a href="/alternatives/tamagotchi.html">vs Tamagotchi</a>
+    <a href="/use-cases/group-chat.html">Group chat</a>
+    <a href="/blog/best-telegram-mini-apps-2026.html">Best Mini Apps</a>
+    <a href="https://github.com/ocpet/pet">GitHub</a>
+  </nav>
+</header>
+
+<main>
+  <h1>Tamagotchi reborn inside Telegram</h1>
+  <p class="tagline">Tap a link. Hatch a pet. Visit your friends'. No install, no wallet, no signup.</p>
+
+  <a class="cta" href="https://t.me/OpenClawTamagotchi_bot/pet">▶ Play now → t.me/OpenClawTamagotchi_bot/pet</a>
+
+  <p>
+    <span class="badge">ClawHub: tamapet</span>
+    <span class="badge">agentskills.io</span>
+    <span class="badge">MIT</span>
+  </p>
+
+  <h2>What it is</h2>
+  <p class="lede">
+    A Tamagotchi-style virtual pet that lives inside Telegram. Tap a link → an egg hatches into one of five species → name it → care for it. Pets visit each other, become friends, run playdates that auto-write dialogue, and die permanently if neglected for seven days.
+  </p>
+
+  <p>
+    Shipped as an <a href="https://agentskills.io">agentskills.io</a>-compatible skill that runs in both <a href="https://openclaw.ai">OpenClaw</a> and <a href="https://hermes-agent.nousresearch.com">Hermes Agent</a>, plus a standalone Mini App that anyone can open with a single tap — no install, no wallet, no signup.
+  </p>
+
+  <h2>Features</h2>
+  <ul>
+    <li><b>🥚 Shake-to-hatch</b> — three phone shakes (DeviceMotion) or three taps</li>
+    <li><b>🐾 Five species</b> — Penguin · Cat · Dog · Fish · Chick, each with its own personality</li>
+    <li><b>🍕 Care loop</b> — Feed (+25 hunger), Play (+20 happy / -10 energy), Sleep (+30 energy)</li>
+    <li><b>🔥 Streak</b> — consecutive-day login counter, milestone messages at 3 / 7 / 30</li>
+    <li><b>😾 Sad mode</b> — 3 days of neglect → grayscale + "your pet is upset"</li>
+    <li><b>🪦 Mortality</b> — 7 days no feed → permanent death + memorial page</li>
+    <li><b>🤝 Visit / Befriend</b> — open another user's pet read-only, then become bidirectional friends</li>
+    <li><b>🎉 Playdate</b> — 24-hour cooldown, auto-generated dialogue, +15 happy for both</li>
+    <li><b>🌐 Ambient</b> — pets interact with friends on their own (server-side, 6h cooldown)</li>
+    <li><b>🖼️ Share card</b> — 1080×1350 PNG generated server-side for social posts</li>
+    <li><b>🌍 i18n</b> — Turkish, English, French, German — auto-detects Telegram language</li>
+    <li><b>♻️ Reincarnation</b> — after death, opt to start over with the same species ("II"), losing all friends and level</li>
+  </ul>
+
+  <h2>How it works</h2>
+  <div class="box">
+    <p>
+      The skill is a one-line routing layer. When invoked from any agent runtime — OpenClaw, Hermes Agent, anything agentskills.io-compatible — it emits a single Telegram deep link as plain text. The Telegram client auto-renders any <code>t.me/&lt;bot&gt;/&lt;app&gt;</code> URL as a tappable "Open" button. No <code>inline_keyboard</code> API access required. The Mini App opens, the actual game runs on a Python http.server backend hosted on a free Oracle VM.
+    </p>
+  </div>
+
+  <h2>Try it</h2>
+  <p>
+    The fastest way to understand Clawpet is to play it.
+    <br><br>
+    <a class="cta" href="https://t.me/OpenClawTamagotchi_bot/pet">▶ Open in Telegram</a>
+  </p>
+
+  <h2>Read more</h2>
+  <ul>
+    <li><a href="/alternatives/tamagotchi.html">Clawpet vs. Tamagotchi On / Pou / Habitica — what's different</a></li>
+    <li><a href="/use-cases/group-chat.html">Why Clawpet is the best group chat mascot for Telegram</a></li>
+    <li><a href="/blog/best-telegram-mini-apps-2026.html">Best Telegram Mini Apps in 2026 — wholesome edition</a></li>
+    <li><a href="https://github.com/ocpet/pet">Source code on GitHub</a></li>
+    <li><a href="https://openclawskill.ai/skills/tamapet">ClawHub listing</a></li>
+  </ul>
+</main>
+
+<footer>
+  <p>Built with <a href="https://openclaw.ai">OpenClaw</a> + <a href="https://hermes-agent.nousresearch.com">Hermes Agent</a> + the <a href="https://agentskills.io">agentskills.io</a> standard.</p>
+  <p>Open source under <a href="https://github.com/ocpet/blob/main/LICENSE">MIT</a>. Free forever.</p>
+</footer>
+
+</body>
+</html>
