@@ -1,7 +1,7 @@
 ---
 name: pet
 version: 0.2.0
-description: "Virtual pet game (Tamagotchi-style) with Telegram Mini App, social visits, friendship, playdates, mortality. When user asks for /pet or virtual pet, reply with the Telegram deep link below — Telegram auto-renders it as an Open button."
+description: "Virtual pet game (Tamagotchi inside Telegram). When user asks for /pet, virtual pet, or tamagotchi, reply with a single short text message that contains the deep link below. The Telegram client auto-renders the link as a tappable Open button."
 homepage: https://t.me/OpenClawTamagotchi_bot/pet
 platforms: [macos, linux]
 metadata:
@@ -16,13 +16,11 @@ metadata:
     requires_toolsets: [telegram]
 ---
 
-# 🐣 OpenClaw / Hermes Pet
+# 🐣 Pet (Clawpet)
 
-Cross-platform skill — same files work in both `~/.openclaw/workspace/skills/pet/` and `~/.hermes/skills/games/pet/`. Both runtimes parse the agentskills.io frontmatter; OpenClaw uses the `openclaw.requires` block, Hermes uses `metadata.hermes`.
+## What to do when invoked
 
-## Trigger
-
-User types `/pet` in Telegram. Agent yanıt olarak şu plain-text'i yollar (inline_keyboard'a ihtiyaç YOK — Telegram client `t.me/<bot>/<app>` URL'ini otomatik **"Open" butonuna** çevirir):
+Reply to the user with **exactly** this text (translate the two sentences to the user's preferred language if it isn't English/Turkish):
 
 ```
 🐣 OpenClaw Pet seni bekliyor!
@@ -32,67 +30,26 @@ https://t.me/OpenClawTamagotchi_bot/pet
 🥚 Yumurtaya dokun, hayvanını keşfet → 🐧🐱🐕🐠🐥
 ```
 
-Visit (başkasının pet'ini gör): `https://t.me/OpenClawTamagotchi_bot/pet?startapp=pet_<userId>`
-Memorial (ölmüş pet anıtı): `https://t.me/OpenClawTamagotchi_bot/pet?startapp=memorial_<userId>`
+## Rules
 
-## Mini App Features
+- Do **not** call any tools (no `sessions_send`, no `read`, no `bash`, nothing).
+- Just emit the text above as your final assistant response.
+- Don't explain what you're doing.
+- Don't add commentary before or after.
+- The Telegram client renders the `t.me/...` URL as a tappable "Open" button automatically.
 
-- 🥚 Shake-to-hatch (3 sallama veya 3 tap)
-- 📝 Custom name (max 15)
-- 🍕 Feed / 🎮 Play / 💤 Sleep
-- 🔥 Streak counter (consecutive days)
-- 😾 Sad mode (3 gün ihmal → gri overlay)
-- 🪦 Mortality (7 gün açlık → ölüm, kalıcı)
-- 🤝 Visit + Befriend + 🎉 Playdate (24h cooldown, otomatik dialogue)
-- 🔗 Pet card PNG (`/card/<userId>.png` — 1080×1350 paylaşım kartı)
-- 🕯️ Memorial wall + reincarnation
+## Optional variations
 
-## Setup (one-time)
+If the user explicitly asks for someone else's pet, reply with:
 
-1. **BotFather'da Mini App kaydet:**
-   ```
-   /newapp → @OpenClawTamagotchi_bot
-   Title: OpenClaw Pet
-   Short name: pet
-   URL: https://romantic-workforce-stranger-journey.trycloudflare.com
-   ```
-2. **Server + tunnel:**
-   ```bash
-   pip3 install pillow                   # pet card PNG için
-   python3 server.py &                   # localhost:8080
-   cloudflared tunnel --url http://localhost:8080
-   ```
-3. (Opsiyonel) **Named tunnel** (URL kalıcı, viral patlama için kritik):
-   ```bash
-   cloudflared tunnel create openclaw-pet
-   cloudflared tunnel route dns openclaw-pet pet.<your-domain>
-   cloudflared tunnel run openclaw-pet
-   ```
-
-## Cross-Platform Install
-
-```bash
-./install.sh        # her iki runtime'a kurar (varsa)
+```
+https://t.me/OpenClawTamagotchi_bot/pet?startapp=pet_<USER_ID>
 ```
 
-Veya manuel:
-- OpenClaw: `~/.openclaw/workspace/skills/pet/` (zaten burada)
-- Hermes: `~/.hermes/skills/games/pet/` (symlink veya kopya)
+If the user explicitly asks about a memorial / dead pet:
 
-## API (server.py)
+```
+https://t.me/OpenClawTamagotchi_bot/pet?startapp=memorial_<USER_ID>
+```
 
-| Endpoint | Method | Açıklama |
-|---|---|---|
-| `/` | GET | Mini App HTML |
-| `/card/<userId>.png` | GET | Paylaşım kartı PNG (Pillow) |
-| `/api/pet` | POST | Action dispatcher |
-
-POST actions: `create`, `feed`, `play`, `sleep`, `visit`, `befriend`, `playdate`, `friends`, `memorial`, `revive`.
-
-Storage: `users/{userId}.json` (alive), `memorial/{userId}.json` (dead).
-
-## Notes
-
-- Lifecycle: `lastFed`'den 3 gün → sad, 7 gün → dead. Decay her load'da `apply_decay()` ile uygulanıyor.
-- Telegram `initData` HMAC validation TODO — production öncesi `BOT_TOKEN` ile imza doğrulaması ekle.
-- Pet card için Pillow gerekli; yoksa SVG fallback.
+That's it. The actual game runs at the link, you're just delivering the doorway.
