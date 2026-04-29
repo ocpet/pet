@@ -8,19 +8,23 @@
     <script src="/i18n.js"></script>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
+        html, body { height: 100%; }
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
             min-height: 100vh;
+            min-height: 100dvh;
             display: flex;
             flex-direction: column;
             align-items: center;
-            justify-content: center;
-            padding: 20px;
-            overflow: hidden;
+            justify-content: flex-start;
+            padding: 12px;
+            padding-bottom: 24px;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
         }
-        .screen { display: none; text-align: center; width: 100%; max-width: 400px; }
+        .screen { display: none; text-align: center; width: 100%; max-width: 420px; }
         .screen.active { display: flex; flex-direction: column; align-items: center; }
         
         /* Egg Screen */
@@ -82,96 +86,96 @@
         }
         .btn:active { transform: scale(0.95); background: rgba(255,255,255,0.3); }
         
-        /* Pet Screen */
-        .pet-header { margin-bottom: 20px; }
-        .pet-name-display { font-size: 28px; font-weight: bold; margin-bottom: 5px; }
-        .pet-level { font-size: 16px; opacity: 0.8; }
-        .pet-emoji { font-size: 100px; margin: 20px 0; animation: bounce 2s infinite; }
+        /* Pet Screen — compact */
+        .pet-header { margin-bottom: 8px; }
+        .pet-name-display { font-size: 24px; font-weight: bold; margin-bottom: 2px; }
+        .pet-level { font-size: 14px; opacity: 0.85; }
+        .pet-emoji { font-size: 72px; margin: 8px 0; animation: bounce 2s infinite; line-height: 1; }
         @keyframes bounce {
             0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-10px); }
+            50% { transform: translateY(-6px); }
         }
-        
+
         .stats-container {
             background: rgba(0,0,0,0.2);
-            border-radius: 20px;
-            padding: 20px;
+            border-radius: 16px;
+            padding: 12px 14px;
             width: 100%;
-            margin: 20px 0;
+            margin: 10px 0;
         }
         .stat-row {
             display: flex;
             align-items: center;
-            margin: 15px 0;
+            margin: 8px 0;
         }
-        .stat-icon { font-size: 24px; margin-right: 10px; width: 30px; }
+        .stat-icon { font-size: 20px; margin-right: 8px; width: 26px; }
         .stat-bar {
             flex: 1;
-            height: 20px;
+            height: 14px;
             background: rgba(0,0,0,0.3);
-            border-radius: 10px;
+            border-radius: 7px;
             overflow: hidden;
             margin-right: 10px;
         }
         .stat-fill {
             height: 100%;
-            border-radius: 10px;
+            border-radius: 7px;
             transition: width 0.3s;
         }
         .hunger-fill { background: #ff6b6b; }
         .happy-fill { background: #4ecdc4; }
         .energy-fill { background: #45b7d1; }
-        .stat-value { width: 40px; text-align: right; font-weight: bold; }
-        
+        .stat-value { width: 36px; text-align: right; font-weight: bold; font-size: 13px; }
+
         .controls {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
-            gap: 10px;
+            gap: 8px;
             width: 100%;
-            margin-top: 20px;
+            margin-top: 10px;
         }
         .control-btn {
             background: rgba(255,255,255,0.1);
             border: 2px solid rgba(255,255,255,0.2);
-            border-radius: 15px;
-            padding: 20px 10px;
+            border-radius: 14px;
+            padding: 12px 6px;
             color: white;
-            font-size: 32px;
+            font-size: 26px;
             cursor: pointer;
             transition: all 0.2s;
         }
         .control-btn:active { transform: scale(0.95); }
         .control-btn span {
             display: block;
-            font-size: 12px;
-            margin-top: 5px;
+            font-size: 11px;
+            margin-top: 2px;
             text-transform: uppercase;
         }
         
         .message-bubble {
             background: white;
             color: #333;
-            padding: 15px 20px;
-            border-radius: 20px;
-            margin: 15px 0;
-            font-size: 16px;
-            max-width: 90%;
+            padding: 10px 16px;
+            border-radius: 16px;
+            margin: 8px 0;
+            font-size: 14px;
+            max-width: 92%;
             animation: pop-in 0.3s ease;
         }
         .social-row {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
-            gap: 10px;
+            gap: 8px;
             width: 100%;
-            margin-top: 12px;
+            margin-top: 8px;
         }
         .social-btn {
             background: rgba(255,255,255,0.08);
             border: 1px solid rgba(255,255,255,0.2);
             border-radius: 12px;
-            padding: 12px;
+            padding: 9px;
             color: white;
-            font-size: 14px;
+            font-size: 13px;
             cursor: pointer;
         }
         .social-btn:active { transform: scale(0.96); }
@@ -494,14 +498,16 @@
             petName = input.value.trim() || PET_NAMES[selectedPet];
             
             // Save to server
+            const petType = TYPE_BY_EMOJI[selectedPet] || 'cat';
             fetch('/api/pet', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     userId: userId,
                     action: 'create',
-                    type: selectedPet,
-                    name: petName
+                    type: petType,
+                    name: petName,
+                    lang: LANG
                 })
             })
             .then(r => r.json())
@@ -867,7 +873,8 @@
                 }
                 petData = r;
                 petName = r.name || 'Pet';
-                selectedPet = EMOJI_BY_TYPE[r.type] || '🐱';
+                // Backwards-compat: r.type may be emoji (legacy bug) or species string
+                selectedPet = EMOJI_BY_TYPE[r.type] || (PETS.includes(r.type) ? r.type : '🐱');
                 document.getElementById('displayName').textContent = petName;
                 document.getElementById('petEmoji').textContent = selectedPet;
                 setScreen('petScreen');
