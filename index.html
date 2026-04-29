@@ -844,9 +844,39 @@
                 const targetId = sp.slice(4);
                 if (targetId && targetId !== String(userId)) {
                     visit(targetId);
+                    return;
                 }
             }
+            // No visit param — check if this user already has a pet, skip egg if so
+            tryResume();
         })();
+
+        async function tryResume() {
+            try {
+                const r = await fetch('/api/pet', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ userId, action: 'get', lang: LANG })
+                }).then(r => r.ok ? r.json() : null);
+                if (!r || r.error) return; // no pet — egg screen stays active
+                if (r.status === 'dead') {
+                    petData = r;
+                    petName = r.name;
+                    showMemorialFromPet(r);
+                    return;
+                }
+                petData = r;
+                petName = r.name || 'Pet';
+                selectedPet = EMOJI_BY_TYPE[r.type] || '🐱';
+                document.getElementById('displayName').textContent = petName;
+                document.getElementById('petEmoji').textContent = selectedPet;
+                setScreen('petScreen');
+                updateStats();
+                sayPet('greet');
+                startIdleLoop();
+                loadDiary();
+            } catch (e) { console.warn('resume failed', e); }
+        }
     </script>
 </body>
 </html>

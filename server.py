@@ -648,6 +648,11 @@ class PetHandler(http.server.SimpleHTTPRequestHandler):
             save_pet(user_id, pet); save_pet(target_id, target)
             return self._json(200, {'dialogue': line, 'pet': pet, 'target': public_view(target)})
 
+        if action == 'get':
+            if not pet:
+                return self._json(404, {'error': 'no_pet'})
+            return self._json(200, pet)
+
         if action == 'diary':
             if not pet:
                 return self._json(404, {'error': 'no_pet'})
