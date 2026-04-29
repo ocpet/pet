@@ -15,6 +15,12 @@
 </p>
 
 <p align="center">
+  Build-in-public:
+  <a href="https://x.com/clawpet_news">@clawpet_news</a> on X ·
+  <a href="https://t.me/openclawpet">@openclawpet</a> on Telegram
+</p>
+
+<p align="center">
   <a href="https://openclawskill.ai/skills/tamapet"><img src="https://img.shields.io/badge/ClawHub-tamapet-orange" alt="ClawHub"></a>
   <img src="https://img.shields.io/badge/agentskills.io-compatible-blue">
   <img src="https://img.shields.io/badge/OpenClaw-skill-purple">
