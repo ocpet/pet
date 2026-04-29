@@ -6,6 +6,18 @@
     <title>🐣 OpenClaw Pet</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <script src="/i18n.js"></script>
+    <!-- Telegram Mini Apps Analytics SDK (required for Apps Center listing) -->
+    <script async src="https://tganalytics.xyz/index.js" onload="initAnalytics()"></script>
+    <script>
+      function initAnalytics() {
+        try {
+          window.telegramAnalytics.init({
+            token: 'eyJhcHBfbmFtZSI6Im9wZW5fY2xhd19wZXQiLCJhcHBfdXJsIjoiaHR0cHM6Ly90Lm1lL09wZW5DbGF3VGFtYWdvdGNoaV9ib3QiLCJhcHBfZG9tYWluIjoiaHR0cHM6Ly9vY3BldC5naXRodWIuaW8vcGV0LyJ9!/rPVnKWrQibD+OtBI6q6nE0X1y77CCf1EHHuxgHlzkg=',
+            appName: 'open_claw_pet',
+          });
+        } catch (e) { console.warn('TG Analytics init skipped:', e); }
+      }
+    </script>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         html, body { height: 100%; }
