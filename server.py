@@ -29,7 +29,7 @@ except ImportError:
     HAS_PIL = False
 
 PORT = int(os.environ.get('PET_PORT', '8080'))
-ROOT = os.path.expanduser("~/.openclaw/workspace/skills/pet")
+ROOT = os.environ.get('PET_ROOT') or os.path.dirname(os.path.abspath(__file__))
 USERS_DIR = os.path.join(ROOT, "users")
 MEMORIAL_DIR = os.path.join(ROOT, "memorial")
 os.makedirs(USERS_DIR, exist_ok=True)
