@@ -1,6 +1,28 @@
-# 🐣 OpenClaw / Hermes Pet
+<p align="center">
+  <img src="assets/banner.jpg" alt="OpenClaw Pet" width="720">
+</p>
 
-Cross-platform Telegram Mini App pet game. Çalışıyor → **`https://t.me/OpenClawTamagotchi_bot/pet`**
+<h1 align="center">🐣 OpenClaw / Hermes Pet</h1>
+
+<p align="center">
+  <b>Tamagotchi reborn inside Telegram.</b><br>
+  Visit · Befriend · Playdate · Mortality · Memorial<br>
+  4 languages · 0 install · 0 wallet
+</p>
+
+<p align="center">
+  <a href="https://t.me/OpenClawTamagotchi_bot/pet"><b>▶ Play now → t.me/OpenClawTamagotchi_bot/pet</b></a>
+</p>
+
+<p align="center">
+  <a href="https://openclawskill.ai/skills/tamapet"><img src="https://img.shields.io/badge/ClawHub-tamapet-orange" alt="ClawHub"></a>
+  <img src="https://img.shields.io/badge/agentskills.io-compatible-blue">
+  <img src="https://img.shields.io/badge/OpenClaw-skill-purple">
+  <img src="https://img.shields.io/badge/Hermes-Agent-green">
+  <img src="https://img.shields.io/badge/license-MIT-lightgrey">
+</p>
+
+---
 
 ## 🚀 Kurulum
 
