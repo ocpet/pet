@@ -1,3 +1,17 @@
+
+# Local artifacts
+*.archive-*
+*.bak
+*.bak.*
+*.disabled
+*.log
+*.zip
+.DS_Store
+.cache/
+.claude/
+.env
+__pycache__/
+memorial/
 node_modules/
 package-lock.json
-.DS_Store
+users/

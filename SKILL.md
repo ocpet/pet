@@ -1,64 +1,98 @@
 ---
 name: pet
-description: 🐣 Your personal coding companion - Tamagotchi style pet in terminal
-version: 0.1.0
-author: TURAC
+version: 0.2.0
+description: "Virtual pet game (Tamagotchi-style) with Telegram Mini App, social visits, friendship, playdates, mortality. When user asks for /pet or virtual pet, reply with the Telegram deep link below — Telegram auto-renders it as an Open button."
+homepage: https://t.me/OpenClawTamagotchi_bot/pet
+platforms: [macos, linux]
+metadata:
+  openclaw:
+    emoji: "🐣"
+    requires:
+      bins: ["python3"]
+    tags: ["game", "telegram", "mini-app", "social", "viral", "pet"]
+  hermes:
+    tags: ["game", "telegram", "mini-app", "social", "viral"]
+    category: games
+    requires_toolsets: [telegram]
 ---
 
-# Pet Skill for OpenClaw
+# 🐣 OpenClaw / Hermes Pet
 
-A Tamagotchi-style coding companion that lives in your terminal.
+Cross-platform skill — same files work in both `~/.openclaw/workspace/skills/pet/` and `~/.hermes/skills/games/pet/`. Both runtimes parse the agentskills.io frontmatter; OpenClaw uses the `openclaw.requires` block, Hermes uses `metadata.hermes`.
 
-## Usage
+## Trigger
 
-```bash
-openclaw pet
-# or
-openclaw run pet
+User types `/pet` in Telegram. Agent yanıt olarak şu plain-text'i yollar (inline_keyboard'a ihtiyaç YOK — Telegram client `t.me/<bot>/<app>` URL'ini otomatik **"Open" butonuna** çevirir):
+
+```
+🐣 OpenClaw Pet seni bekliyor!
+
+https://t.me/OpenClawTamagotchi_bot/pet
+
+🥚 Yumurtaya dokun, hayvanını keşfet → 🐧🐱🐕🐠🐥
 ```
 
-## Features
+Visit (başkasının pet'ini gör): `https://t.me/OpenClawTamagotchi_bot/pet?startapp=pet_<userId>`
+Memorial (ölmüş pet anıtı): `https://t.me/OpenClawTamagotchi_bot/pet?startapp=memorial_<userId>`
 
-- 🥚 5 Evolution Stages (Egg → Baby → Teen → Adult → Legend)
-- 🍕 Feed, 🎮 Play, 💻 Code mechanics
-- 📊 Real-time stats with ASCII bars
-- 🎨 Terminal pixel art
-- 💾 Persistent state (saves to ~/.openclaw-pet.json)
+## Mini App Features
 
-## Commands (in-game)
+- 🥚 Shake-to-hatch (3 sallama veya 3 tap)
+- 📝 Custom name (max 15)
+- 🍕 Feed / 🎮 Play / 💤 Sleep
+- 🔥 Streak counter (consecutive days)
+- 😾 Sad mode (3 gün ihmal → gri overlay)
+- 🪦 Mortality (7 gün açlık → ölüm, kalıcı)
+- 🤝 Visit + Befriend + 🎉 Playdate (24h cooldown, otomatik dialogue)
+- 🔗 Pet card PNG (`/card/<userId>.png` — 1080×1350 paylaşım kartı)
+- 🕯️ Memorial wall + reincarnation
 
-- `f` or `feed` - Feed your pet
-- `p` or `play` - Play with your pet
-- `c` or `code` - Code to earn XP
-- `s` or `status` - Check status
-- `q` or `quit` - Exit
+## Setup (one-time)
 
-## Stages
+1. **BotFather'da Mini App kaydet:**
+   ```
+   /newapp → @OpenClawTamagotchi_bot
+   Title: OpenClaw Pet
+   Short name: pet
+   URL: https://romantic-workforce-stranger-journey.trycloudflare.com
+   ```
+2. **Server + tunnel:**
+   ```bash
+   pip3 install pillow                   # pet card PNG için
+   python3 server.py &                   # localhost:8080
+   cloudflared tunnel --url http://localhost:8080
+   ```
+3. (Opsiyonel) **Named tunnel** (URL kalıcı, viral patlama için kritik):
+   ```bash
+   cloudflared tunnel create openclaw-pet
+   cloudflared tunnel route dns openclaw-pet pet.<your-domain>
+   cloudflared tunnel run openclaw-pet
+   ```
 
-1. 🥚 **Egg** - Level 1-4
-2. 🤖 **Baby Bot** - Level 5-9
-3. 💻 **Teen Coder** - Level 10-14
-4. 🦖 **Senior Dev** - Level 15-19
-5. 👑 **10x Legend** - Level 20+
-
-## Installation
+## Cross-Platform Install
 
 ```bash
-# Link to OpenClaw
-openclaw skills link ~/.openclaw/workspace/skills/pet
-
-# Or copy to skills directory
-cp -r ~/.openclaw/workspace/skills/pet ~/.openclaw/skills/
+./install.sh        # her iki runtime'a kurar (varsa)
 ```
 
-## No Domain Required!
+Veya manuel:
+- OpenClaw: `~/.openclaw/workspace/skills/pet/` (zaten burada)
+- Hermes: `~/.hermes/skills/games/pet/` (symlink veya kopya)
 
-This is a pure CLI skill. Works entirely in terminal with:
-- ASCII pixel art
-- Local file storage
-- No external dependencies
-- No web server needed
+## API (server.py)
 
----
+| Endpoint | Method | Açıklama |
+|---|---|---|
+| `/` | GET | Mini App HTML |
+| `/card/<userId>.png` | GET | Paylaşım kartı PNG (Pillow) |
+| `/api/pet` | POST | Action dispatcher |
 
-Built with 💜 by TURAC
+POST actions: `create`, `feed`, `play`, `sleep`, `visit`, `befriend`, `playdate`, `friends`, `memorial`, `revive`.
+
+Storage: `users/{userId}.json` (alive), `memorial/{userId}.json` (dead).
+
+## Notes
+
+- Lifecycle: `lastFed`'den 3 gün → sad, 7 gün → dead. Decay her load'da `apply_decay()` ile uygulanıyor.
+- Telegram `initData` HMAC validation TODO — production öncesi `BOT_TOKEN` ile imza doğrulaması ekle.
+- Pet card için Pillow gerekli; yoksa SVG fallback.
