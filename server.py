@@ -173,10 +173,19 @@ def archive_memorial(pet):
         json.dump(pet, f, indent=2, ensure_ascii=False)
 
 
-def render_card(pet):
+CARD_LABELS = {
+    'tr': {'days': 'gün', 'friends': 'arkadaş', 'memoriam': 'IN MEMORIAM', 'rip': 'Sevgili dostumuz huzur içinde uyusun'},
+    'en': {'days': 'days', 'friends': 'friends', 'memoriam': 'IN MEMORIAM', 'rip': 'Rest in peace, dear friend'},
+    'fr': {'days': 'jours', 'friends': 'amis', 'memoriam': 'IN MEMORIAM', 'rip': 'Repose en paix, cher ami'},
+    'de': {'days': 'Tage', 'friends': 'Freunde', 'memoriam': 'IN MEMORIAM', 'rip': 'Ruhe in Frieden, lieber Freund'},
+}
+
+
+def render_card(pet, lang='tr'):
     """Render shareable PNG card. Returns bytes or None if PIL unavailable."""
     if not HAS_PIL:
         return None
+    L = CARD_LABELS.get(lang, CARD_LABELS['tr'])
     W, H = 1080, 1350
     is_dead = pet.get('status') == 'dead'
     bg_top = (15, 23, 42) if is_dead else (102, 126, 234)
@@ -191,49 +200,151 @@ def render_card(pet):
         for x in range(W):
             px[x, y] = (r, g, b)
     d = ImageDraw.Draw(img)
-    try:
-        emoji_font = ImageFont.truetype("/System/Library/Fonts/Apple Color Emoji.ttc", 240)
-    except Exception:
+
+    def first_font(paths, size):
+        for p in paths:
+            try:
+                return ImageFont.truetype(p, size)
+            except Exception:
+                continue
+        return ImageFont.load_default()
+
+    EMOJI_FONTS = [
+        "/System/Library/Fonts/Apple Color Emoji.ttc",
+        "/usr/share/fonts/truetype/noto/NotoColorEmoji.ttf",
+        "/usr/share/fonts/noto-cjk/NotoColorEmoji.ttf",
+    ]
+    TEXT_FONTS = [
+        "/System/Library/Fonts/HelveticaNeue.ttc",
+        "/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf",
+        "/usr/share/fonts/truetype/liberation/LiberationSans-Bold.ttf",
+        "/usr/share/fonts/truetype/freefont/FreeSansBold.ttf",
+    ]
+    # NotoColorEmoji is a bitmap font that only accepts size 109 — render at 109 then resize via different approach
+    emoji_font = None
+    for p in EMOJI_FONTS:
+        for sz in (240, 137, 109):
+            try:
+                emoji_font = ImageFont.truetype(p, sz)
+                break
+            except Exception:
+                continue
+        if emoji_font:
+            break
+    if emoji_font is None:
         emoji_font = ImageFont.load_default()
-    try:
-        big_font = ImageFont.truetype("/System/Library/Fonts/HelveticaNeue.ttc", 96)
-        med_font = ImageFont.truetype("/System/Library/Fonts/HelveticaNeue.ttc", 48)
-        sml_font = ImageFont.truetype("/System/Library/Fonts/HelveticaNeue.ttc", 36)
-    except Exception:
-        big_font = med_font = sml_font = ImageFont.load_default()
+    big_font = first_font(TEXT_FONTS, 96)
+    med_font = first_font(TEXT_FONTS, 48)
+    sml_font = first_font(TEXT_FONTS, 36)
+
+    # Inline emoji icon font (Noto bitmap is fixed-size, only 109 works on Linux; Apple's font
+    # accepts arbitrary sizes). For Linux we render at native size then scale down.
+    icon_font_native = None
+    icon_native_size = 109
+    for p in EMOJI_FONTS:
+        # Try a small native size first (Apple), then fall back to Noto's fixed 109
+        for sz in (48, 109):
+            try:
+                icon_font_native = ImageFont.truetype(p, sz)
+                icon_native_size = sz
+                break
+            except Exception:
+                continue
+        if icon_font_native:
+            break
+
+    def paste_emoji(center_xy, char, target_size=56):
+        """Render emoji char to a temp RGBA image and paste centered, scaled to target_size."""
+        if not icon_font_native:
+            d.text(center_xy, char, font=med_font, fill='white', anchor='mm')
+            return
+        if icon_native_size <= target_size + 8:
+            # font is already at the right size, render directly
+            try:
+                d.text(center_xy, char, font=icon_font_native, fill='white', anchor='mm', embedded_color=True)
+            except Exception:
+                d.text(center_xy, char, font=icon_font_native, fill='white', anchor='mm')
+            return
+        # Render to temp RGBA at native size, scale down, paste with alpha
+        tmp = Image.new('RGBA', (icon_native_size + 20, icon_native_size + 20), (0,0,0,0))
+        td = ImageDraw.Draw(tmp)
+        try:
+            td.text((tmp.size[0]/2, tmp.size[1]/2), char, font=icon_font_native, anchor='mm', embedded_color=True)
+        except Exception:
+            td.text((tmp.size[0]/2, tmp.size[1]/2), char, font=icon_font_native, fill='white', anchor='mm')
+        scaled = tmp.resize((target_size, target_size), Image.Resampling.LANCZOS)
+        cx, cy = int(center_xy[0]), int(center_xy[1])
+        img.paste(scaled, (cx - target_size//2, cy - target_size//2), scaled)
+
+    def text_emoji(xy, content, font, fill='white', anchor='mm'):
+        """Draw text that may contain emoji using embedded_color when supported."""
+        try:
+            d.text(xy, content, font=font, fill=fill, anchor=anchor, embedded_color=True)
+        except Exception:
+            d.text(xy, content, font=font, fill=fill, anchor=anchor)
+
+    # Big main emoji also needs scaling on Linux when font is bitmap-only
+    main_emoji_size = 280  # target render size
+    def paste_main_emoji(center_xy, char):
+        if not emoji_font:
+            d.text(center_xy, char, font=big_font, fill='white', anchor='mm')
+            return
+        # If emoji_font's pixel size already matches roughly, draw direct
+        try:
+            ef_size = emoji_font.size
+        except Exception:
+            ef_size = 240
+        if abs(ef_size - main_emoji_size) <= 24:
+            text_emoji(center_xy, char, emoji_font, 'white')
+            return
+        tmp = Image.new('RGBA', (ef_size + 40, ef_size + 40), (0,0,0,0))
+        td = ImageDraw.Draw(tmp)
+        try:
+            td.text((tmp.size[0]/2, tmp.size[1]/2), char, font=emoji_font, anchor='mm', embedded_color=True)
+        except Exception:
+            td.text((tmp.size[0]/2, tmp.size[1]/2), char, font=emoji_font, fill='white', anchor='mm')
+        scaled = tmp.resize((main_emoji_size, main_emoji_size), Image.Resampling.LANCZOS)
+        cx, cy = int(center_xy[0]), int(center_xy[1])
+        img.paste(scaled, (cx - main_emoji_size//2, cy - main_emoji_size//2), scaled)
 
     emoji = '🪦' if is_dead else EMOJI.get(pet.get('type'), '🐾')
     name = pet.get('name', '?')
     if is_dead:
-        d.text((W/2, 200), 'IN MEMORIAM', font=med_font, fill='white', anchor='mm')
-    try:
-        d.text((W/2, 470), emoji, font=emoji_font, fill='white', anchor='mm', embedded_color=True)
-    except Exception:
-        d.text((W/2, 470), emoji, font=big_font, fill='white', anchor='mm')
+        d.text((W/2, 200), L['memoriam'], font=med_font, fill='white', anchor='mm')
+    paste_main_emoji((W/2, 470), emoji)
     d.text((W/2, 720), name, font=big_font, fill='white', anchor='mm')
 
     if is_dead:
         died = (pet.get('diedAt') or '')[:10]
         born = (pet.get('created') or '')[:10]
         d.text((W/2, 840), f'{born} — {died}', font=med_font, fill='white', anchor='mm')
-        d.text((W/2, 920), f'Level {pet.get("level",1)} · {len(pet.get("friends",[]))} arkadaş', font=sml_font, fill=(220,220,220), anchor='mm')
-        d.text((W/2, 1080), 'Sevgili dostumuz huzur içinde uyusun 🕯️', font=sml_font, fill=(200,200,200), anchor='mm')
+        d.text((W/2, 920), f'Level {pet.get("level",1)} · {len(pet.get("friends",[]))} {L["friends"]}', font=sml_font, fill=(220,220,220), anchor='mm')
+        text_emoji((W/2, 1080), L['rip'] + ' 🕯', sml_font, (200,200,200))
     else:
-        d.text((W/2, 840), f'Level {pet.get("level",1)} · 🔥 {pet.get("streak",0)} gün', font=med_font, fill='white', anchor='mm')
+        # "Level 28 · 🔥 38 days" — split so streak emoji uses emoji font
+        level_txt = f'Level {pet.get("level",1)}'
+        days_txt = f'{pet.get("streak",0)} {L["days"]}'
+        d.text((W/2 - 200, 840), level_txt + ' ·', font=med_font, fill='white', anchor='mm')
+        paste_emoji((W/2, 840), '🔥', target_size=52)
+        d.text((W/2 + 200, 840), days_txt, font=med_font, fill='white', anchor='mm')
         # Stat bars
         stats = [('🍕', pet.get('hunger',0), (255,107,107)),
                  ('😊', pet.get('happy',0), (78,205,196)),
                  ('⚡', pet.get('energy',0), (69,183,209))]
         bar_x = 240; bar_w = 600; bar_h = 40; y = 950
         for icon, val, color in stats:
-            d.text((bar_x - 60, y + bar_h/2), icon, font=med_font, fill='white', anchor='mm')
-            d.rectangle([bar_x, y, bar_x + bar_w, y + bar_h], fill=(0,0,0,100), outline='white')
+            paste_emoji((bar_x - 70, y + bar_h/2), icon, target_size=44)
+            # RGB-only background (was alpha-broken in RGB mode → solid black)
+            d.rectangle([bar_x, y, bar_x + bar_w, y + bar_h], fill=(40, 40, 70), outline=(255,255,255,200))
             d.rectangle([bar_x, y, bar_x + int(bar_w * val/100), y + bar_h], fill=color)
             d.text((bar_x + bar_w + 60, y + bar_h/2), str(val), font=med_font, fill='white', anchor='mm')
             y += 80
 
-    d.text((W/2, H - 100), f'🤝 {len(pet.get("friends",[]))} arkadaş', font=sml_font, fill='white', anchor='mm')
-    d.text((W/2, H - 50), 't.me/Bombaligrim_bot/pet', font=sml_font, fill=(220,220,220), anchor='mm')
+    # Footer: emoji + count + label split
+    f_count = len(pet.get('friends', []))
+    paste_emoji((W/2 - 110, H - 100), '🤝', target_size=40)
+    d.text((W/2 + 20, H - 100), f'{f_count} {L["friends"]}', font=sml_font, fill='white', anchor='mm')
+    d.text((W/2, H - 50), 't.me/OpenClawTamagotchi_bot/pet', font=sml_font, fill=(220,220,220), anchor='mm')
 
     out = io.BytesIO()
     img.save(out, format='PNG', optimize=True)
@@ -249,7 +360,7 @@ def render_card_svg(pet):
 <text x="540" y="500" font-size="240" text-anchor="middle">{emoji}</text>
 <text x="540" y="720" font-size="96" font-weight="bold" fill="white" text-anchor="middle" font-family="Helvetica">{pet.get('name','?')}</text>
 <text x="540" y="820" font-size="48" fill="white" text-anchor="middle" font-family="Helvetica">Level {pet.get('level',1)} · 🔥 {pet.get('streak',0)} gün</text>
-<text x="540" y="1280" font-size="36" fill="#ddd" text-anchor="middle" font-family="Helvetica">t.me/Bombaligrim_bot/pet</text>
+<text x="540" y="1280" font-size="36" fill="#ddd" text-anchor="middle" font-family="Helvetica">t.me/OpenClawTamagotchi_bot/pet</text>
 </svg>'''
 
 
@@ -364,16 +475,22 @@ class PetHandler(http.server.SimpleHTTPRequestHandler):
             with open(os.path.join(ROOT, 'index.html'), 'rb') as f:
                 self.wfile.write(f.read())
         elif self.path.startswith('/card/'):
-            uid = self.path.replace('/card/', '').replace('.png', '').split('?')[0]
-            self.serve_card(uid)
+            raw = self.path.replace('/card/', '').replace('.png', '')
+            uid = raw.split('?')[0]
+            lang = 'tr'
+            if '?' in raw:
+                from urllib.parse import parse_qs
+                qs = parse_qs(raw.split('?', 1)[1])
+                lang = (qs.get('lang') or ['tr'])[0].lower()
+            self.serve_card(uid, lang)
         else:
             super().do_GET()
 
-    def serve_card(self, user_id):
+    def serve_card(self, user_id, lang='tr'):
         pet = load_pet(user_id) or self._load_memorial(user_id)
         if not pet:
             self.send_response(404); self.end_headers(); return
-        png = render_card(pet)
+        png = render_card(pet, lang)
         if png is None:
             # Fallback: SVG
             svg = render_card_svg(pet)

@@ -36,6 +36,20 @@ Shipped as an [agentskills.io](https://agentskills.io)-compatible skill that run
 
 To visit a friend's pet, share `t.me/OpenClawTamagotchi_bot/pet?startapp=pet_<userId>`. Telegram auto-renders any `t.me/<bot>/<app>` URL as a tappable Open button — no inline keyboard required.
 
+## See it
+
+Five species, each generates a shareable 1080×1350 PNG card from the live backend at `/card/<userId>.png`:
+
+<p align="center">
+  <img src="https://ocpet.github.io/pet/assets/card-gallery.jpg" alt="5 species — Pengu, Pamuk, Karabaş, Glubglub, Civi" width="100%">
+</p>
+
+When a pet dies, its card switches to the memorial layout. The link still works — but read-only:
+
+<p align="center">
+  <img src="https://ocpet.github.io/pet/assets/before-after.jpg" alt="Alive vs. memorial" width="100%">
+</p>
+
 ## Features
 
 | | |
